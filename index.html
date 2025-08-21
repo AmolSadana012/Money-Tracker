@@ -48,15 +48,26 @@
     li.expense {
       border-color: red;
     }
+    .form select {
+      margin: 5px 0;
+      padding: 10px;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Money Tracker</h1>
     <h2 id="balance">Current Balance: $0</h2>
+    <h3 id="income">Total Income: $0</h3>
+    <h3 id="expense">Total Expense: $0</h3>
     <div class="form">
       <input type="text" id="desc" placeholder="Enter description">
-      <input type="number" id="amount" placeholder="Enter amount">
+      <select id="type">
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+      </select>
+      <input type="number" id="amount" placeholder="Enter amount (positive)">
       <button onclick="addTransaction()">Add</button>
     </div>
     <h3>Transactions</h3>
@@ -67,20 +78,30 @@
     let transactions = [];
     function addTransaction() {
       const desc = document.getElementById("desc").value;
+      const type = document.getElementById("type").value;
       const amount = Number(document.getElementById("amount").value);
-      if (desc === "" || amount === 0) {
+      if (desc === "" || amount <= 0) {
         alert("Please enter valid data!");
         return;
       }
-      const transaction = { desc, amount };
+      const finalAmount = type === "income" ? amount : -amount;
+      const transaction = { desc, amount: finalAmount };
       transactions.push(transaction);
-      balance += amount;
+      balance += finalAmount;
       updateUI();
       document.getElementById("desc").value = "";
       document.getElementById("amount").value = "";
     }
     function updateUI() {
       document.getElementById("balance").innerText = `Balance: $${balance}`;
+      let income = transactions
+        .filter(t => t.amount > 0)
+        .reduce((acc, t) => acc + t.amount, 0);
+      let expense = transactions
+        .filter(t => t.amount < 0)
+        .reduce((acc, t) => acc + Math.abs(t.amount), 0); 
+      document.getElementById("income").innerText = `Total Income: $${income}`;
+      document.getElementById("expense").innerText = `Total Expense: $${expense}`;
       const list = document.getElementById("transactions");
       list.innerHTML = "";
       transactions.forEach(t => {
