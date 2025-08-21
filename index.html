@@ -53,6 +53,28 @@
       padding: 10px;
       font-size: 16px;
     }
+    #clear-btn {
+      display: block; 
+      margin: 20px auto;    
+      padding: 10px 20px;
+      background-color: #ff4d4d;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s ease;
+    }
+
+    #clear-btn:hover {
+      background-color: #e60000;
+      transform: scale(1.05);
+    }
+
+    #clear-btn:active {
+      background-color: #cc0000;
+      transform: scale(0.95);
+    }
   </style>
 </head>
 <body>
@@ -70,9 +92,9 @@
       <input type="number" id="amount" placeholder="Enter amount (positive)">
       <button onclick="addTransaction()">Add</button>
     </div>
-    <h3>Transactions</h3>
+    <h3>Transaction History</h3>
     <ul id="transactions"></ul>
-  </div>
+    <button id="clear-btn" onclick="clearTransactions()">Clear All Transactions</button>  </div>
   <script>
     let balance = 0;
     let transactions = [];
@@ -110,6 +132,13 @@
         li.classList.add(t.amount > 0 ? "income" : "expense");
         list.appendChild(li);
       });
+    }
+    function clearTransactions() {
+      if (confirm("Are you sure you want to delete all transactions?")) {
+        transactions = []; 
+        localStorage.removeItem("transactions"); 
+        updateUI();
+      }
     }
   </script>
 </body>
