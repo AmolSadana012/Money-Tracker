@@ -65,12 +65,10 @@
       font-weight: bold;
       transition: 0.3s ease;
     }
-
     #clear-btn:hover {
       background-color: #e60000;
       transform: scale(1.05);
     }
-
     #clear-btn:active {
       background-color: #cc0000;
       transform: scale(0.95);
@@ -79,6 +77,21 @@
       font-size: 0.85em;
       font-style: italic;
       color: #666;
+    }
+    .edit-btn, .delete-btn {
+      margin-left: 10px;
+      border: none;
+      padding: 5px 8px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .edit-btn {
+      background: rgb(41, 193, 41);
+    }
+    .delete-btn {
+      background: red;
+      color: white;
     }
   </style>
 </head>
@@ -112,6 +125,7 @@
   <script>
   let balance = 0;
   let transactions = [];
+  let editIndex = null; 
   function addTransaction() {
     const desc = document.getElementById("desc").value;
     const type = document.getElementById("type").value;
@@ -122,13 +136,21 @@
       return;
     }
     const finalAmount = type === "income" ? amount : -amount;
-    const transaction = { desc, amount: finalAmount, category };
-    transactions.push(transaction);
-    balance += finalAmount;
+    if (editIndex !== null) {
+      const old = transactions[editIndex];
+      balance -= old.amount; 
+      transactions[editIndex] = { desc, amount: finalAmount, category };
+      balance += finalAmount;
+      editIndex = null; 
+    } else {
+      const transaction = { desc, amount: finalAmount, category };
+      transactions.push(transaction);
+      balance += finalAmount;
+    }
     updateUI();
     document.getElementById("desc").value = "";
     document.getElementById("amount").value = "";
-    document.getElementById("category").value = "Other"; 
+    document.getElementById("category").value = "Other";
   }
   function updateUI() {
     document.getElementById("balance").innerText = `Balance: $${balance}`;
@@ -142,21 +164,37 @@
     document.getElementById("expense").innerText = `Total Expense: $${expense}`;
     const list = document.getElementById("transactions");
     list.innerHTML = "";
-    transactions.forEach(t => {
+    transactions.forEach((t, index) => {
       const li = document.createElement("li");
-      li.innerText = `${t.desc} (${t.category}): $${t.amount}`;
+      li.innerHTML = `
+        ${t.desc} (${t.category}): $${t.amount}
+        <button class="edit-btn" onclick="editTransaction(${index})">Edit</button>
+        <button class="delete-btn" onclick="deleteTransaction(${index})">Delete</button>
+      `;
       li.classList.add(t.amount > 0 ? "income" : "expense");
       list.appendChild(li);
     });
   }
+  function editTransaction(index) {
+    const t = transactions[index];
+    document.getElementById("desc").value = t.desc;
+    document.getElementById("amount").value = Math.abs(t.amount);
+    document.getElementById("category").value = t.category;
+    document.getElementById("type").value = t.amount > 0 ? "income" : "expense";
+    editIndex = index; 
+  }
+  function deleteTransaction(index) {
+    balance -= transactions[index].amount; 
+    transactions.splice(index, 1);
+    updateUI();
+  }
   function clearTransactions() {
     if (confirm("Are you sure you want to delete all transactions?")) {
-      transactions = []; 
-      localStorage.removeItem("transactions"); 
+      transactions = [];
+      balance = 0;
       updateUI();
     }
   }
 </script>
-
 </body>
 </html>
