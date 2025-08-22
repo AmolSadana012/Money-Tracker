@@ -75,6 +75,11 @@
       background-color: #cc0000;
       transform: scale(0.95);
     }
+    .category {
+      font-size: 0.85em;
+      font-style: italic;
+      color: #666;
+    }
   </style>
 </head>
 <body>
@@ -85,61 +90,73 @@
     <h3 id="expense">Total Expense: $0</h3>
     <div class="form">
       <input type="text" id="desc" placeholder="Enter description">
+      <label for="category">Category:</label>
+      <select id="category">
+        <option value="Food">Food</option>
+        <option value="Travel">Travel</option>
+        <option value="Shopping">Shopping</option>
+        <option value="Bills">Bills</option>
+        <option value="Salary">Salary</option>
+        <option value="Other">Other</option>
+      </select>
       <select id="type">
         <option value="income">Income</option>
         <option value="expense">Expense</option>
       </select>
-      <input type="number" id="amount" placeholder="Enter amount (positive)">
+      <input type="number" id="amount" placeholder="Enter amount">
       <button onclick="addTransaction()">Add</button>
     </div>
     <h3>Transaction History</h3>
     <ul id="transactions"></ul>
     <button id="clear-btn" onclick="clearTransactions()">Clear All Transactions</button>  </div>
   <script>
-    let balance = 0;
-    let transactions = [];
-    function addTransaction() {
-      const desc = document.getElementById("desc").value;
-      const type = document.getElementById("type").value;
-      const amount = Number(document.getElementById("amount").value);
-      if (desc === "" || amount <= 0) {
-        alert("Please enter valid data!");
-        return;
-      }
-      const finalAmount = type === "income" ? amount : -amount;
-      const transaction = { desc, amount: finalAmount };
-      transactions.push(transaction);
-      balance += finalAmount;
+  let balance = 0;
+  let transactions = [];
+  function addTransaction() {
+    const desc = document.getElementById("desc").value;
+    const type = document.getElementById("type").value;
+    const amount = Number(document.getElementById("amount").value);
+    const category = document.getElementById("category").value;
+    if (desc === "" || amount <= 0) {
+      alert("Please enter valid data!");
+      return;
+    }
+    const finalAmount = type === "income" ? amount : -amount;
+    const transaction = { desc, amount: finalAmount, category };
+    transactions.push(transaction);
+    balance += finalAmount;
+    updateUI();
+    document.getElementById("desc").value = "";
+    document.getElementById("amount").value = "";
+    document.getElementById("category").value = "Other"; 
+  }
+  function updateUI() {
+    document.getElementById("balance").innerText = `Balance: $${balance}`;
+    let income = transactions
+      .filter(t => t.amount > 0)
+      .reduce((acc, t) => acc + t.amount, 0);
+    let expense = transactions
+      .filter(t => t.amount < 0)
+      .reduce((acc, t) => acc + Math.abs(t.amount), 0);
+    document.getElementById("income").innerText = `Total Income: $${income}`;
+    document.getElementById("expense").innerText = `Total Expense: $${expense}`;
+    const list = document.getElementById("transactions");
+    list.innerHTML = "";
+    transactions.forEach(t => {
+      const li = document.createElement("li");
+      li.innerText = `${t.desc} (${t.category}): $${t.amount}`;
+      li.classList.add(t.amount > 0 ? "income" : "expense");
+      list.appendChild(li);
+    });
+  }
+  function clearTransactions() {
+    if (confirm("Are you sure you want to delete all transactions?")) {
+      transactions = []; 
+      localStorage.removeItem("transactions"); 
       updateUI();
-      document.getElementById("desc").value = "";
-      document.getElementById("amount").value = "";
     }
-    function updateUI() {
-      document.getElementById("balance").innerText = `Balance: $${balance}`;
-      let income = transactions
-        .filter(t => t.amount > 0)
-        .reduce((acc, t) => acc + t.amount, 0);
-      let expense = transactions
-        .filter(t => t.amount < 0)
-        .reduce((acc, t) => acc + Math.abs(t.amount), 0); 
-      document.getElementById("income").innerText = `Total Income: $${income}`;
-      document.getElementById("expense").innerText = `Total Expense: $${expense}`;
-      const list = document.getElementById("transactions");
-      list.innerHTML = "";
-      transactions.forEach(t => {
-        const li = document.createElement("li");
-        li.innerText = `${t.desc}: $${t.amount}`;
-        li.classList.add(t.amount > 0 ? "income" : "expense");
-        list.appendChild(li);
-      });
-    }
-    function clearTransactions() {
-      if (confirm("Are you sure you want to delete all transactions?")) {
-        transactions = []; 
-        localStorage.removeItem("transactions"); 
-        updateUI();
-      }
-    }
-  </script>
+  }
+</script>
+
 </body>
 </html>
