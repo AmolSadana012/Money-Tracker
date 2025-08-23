@@ -93,6 +93,21 @@
       background: red;
       color: white;
     }
+    .transaction-main {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .transaction-actions {
+      display: flex;
+      gap: 8px; 
+    }
+    .date {
+      font-size: 12px;
+      color: #555;
+      margin-top: 4px;   
+      margin-left: 2px;  
+    }
   </style>
 </head>
 <body>
@@ -139,11 +154,11 @@
     if (editIndex !== null) {
       const old = transactions[editIndex];
       balance -= old.amount; 
-      transactions[editIndex] = { desc, amount: finalAmount, category };
+      transactions[editIndex] = { desc, amount: finalAmount, category, date: old.date };
       balance += finalAmount;
       editIndex = null; 
     } else {
-      const transaction = { desc, amount: finalAmount, category };
+      const transaction = { desc, amount: finalAmount, category, date: new Date().toLocaleString() };
       transactions.push(transaction);
       balance += finalAmount;
     }
@@ -167,9 +182,14 @@
     transactions.forEach((t, index) => {
       const li = document.createElement("li");
       li.innerHTML = `
-        ${t.desc} (${t.category}): $${t.amount}
-        <button class="edit-btn" onclick="editTransaction(${index})">Edit</button>
-        <button class="delete-btn" onclick="deleteTransaction(${index})">Delete</button>
+        <div class="transaction-main">
+          <span>${t.desc} (${t.category}): $${t.amount}</span>
+          <div class="transaction-actions">
+            <button class="edit-btn" onclick="editTransaction(${index})">Edit</button>
+            <button class="delete-btn" onclick="deleteTransaction(${index})">Delete</button>
+          </div>
+        </div>
+        <div class="date">${t.date}</div>
       `;
       li.classList.add(t.amount > 0 ? "income" : "expense");
       list.appendChild(li);
