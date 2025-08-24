@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Money Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -18,6 +19,8 @@
       padding: 20px;
       border-radius: 10px;
       box-shadow: 2px 2px 12px rgba(0,0,0,0.2);
+      max-height: 90vh;
+      overflow-y: auto;
     }
     h1, h2, h3 {
       text-align: center;
@@ -53,7 +56,7 @@
       padding: 10px;
       font-size: 16px;
     }
-    #clear-btn {
+    #clear-btn , #toggleChartBtn {
       display: block; 
       margin: 20px auto;    
       padding: 10px 20px;
@@ -65,11 +68,11 @@
       font-weight: bold;
       transition: 0.3s ease;
     }
-    #clear-btn:hover {
+    #clear-btn:hover, #toggleChartBtn:hover {
       background-color: #e60000;
       transform: scale(1.05);
     }
-    #clear-btn:active {
+    #clear-btn:active, #toggleChartBtn:active  {
       background-color: #cc0000;
       transform: scale(0.95);
     }
@@ -108,6 +111,10 @@
       margin-top: 4px;   
       margin-left: 2px;  
     }
+    #chartContainer {
+      display: none;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -136,11 +143,18 @@
     </div>
     <h3>Transaction History</h3>
     <ul id="transactions"></ul>
-    <button id="clear-btn" onclick="clearTransactions()">Clear All Transactions</button>  </div>
+    <button id="clear-btn" onclick="clearTransactions()">Clear All Transactions</button> 
+    <button id="toggleChartBtn">Show Income vs Expense Chart</button>
+    <div id="chartContainer">
+      <canvas id="incomeExpenseChart"></canvas>
+    </div>
+    </div>
+  </div>
   <script>
   let balance = 0;
   let transactions = [];
   let editIndex = null; 
+  let chartInstance = null;
   function addTransaction() {
     const desc = document.getElementById("desc").value;
     const type = document.getElementById("type").value;
@@ -194,6 +208,9 @@
       li.classList.add(t.amount > 0 ? "income" : "expense");
       list.appendChild(li);
     });
+    if (document.getElementById("chartContainer").style.display === "block") {
+      renderChart(); 
+    }
   }
   function editTransaction(index) {
     const t = transactions[index];
@@ -214,6 +231,46 @@
       balance = 0;
       updateUI();
     }
+  }
+  document.getElementById("toggleChartBtn").addEventListener("click", () => {
+    const chartContainer = document.getElementById("chartContainer");
+    if (chartContainer.style.display === "none") {
+      chartContainer.style.display = "block";
+      document.getElementById("toggleChartBtn").textContent = "Hide Income vs Expense Chart";
+      renderChart();
+    } else {
+      chartContainer.style.display = "none";
+      document.getElementById("toggleChartBtn").textContent = "Show Income vs Expense Chart";
+    }
+  });
+  function renderChart() {
+    const ctx = document.getElementById("incomeExpenseChart").getContext("2d");
+    let income = 0, expense = 0;
+    transactions.forEach(t => {
+      if (t.amount > 0) income += t.amount;
+      else expense += Math.abs(t.amount);
+    });
+    if (chartInstance) {
+      chartInstance.destroy();
+    }
+    chartInstance = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["Income", "Expense"],
+        datasets: [{
+          label: "Amount",
+          data: [income, expense],
+          backgroundColor: ["#4caf50", "#f44336"]
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          title: { display: true, text: "Income vs Expense" }
+        }
+      }
+    });
   }
 </script>
 </body>
