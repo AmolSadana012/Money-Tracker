@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Money Tracker</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -56,7 +58,7 @@
       padding: 10px;
       font-size: 16px;
     }
-    #clear-btn , #toggleChartBtn {
+    #clear-btn , #toggleChartBtn, #pdf-btn {
       display: block; 
       margin: 20px auto;    
       padding: 10px 20px;
@@ -68,11 +70,11 @@
       font-weight: bold;
       transition: 0.3s ease;
     }
-    #clear-btn:hover, #toggleChartBtn:hover {
+    #clear-btn:hover, #toggleChartBtn:hover, #pdf-btn:hover {
       background-color: #e60000;
       transform: scale(1.05);
     }
-    #clear-btn:active, #toggleChartBtn:active  {
+    #clear-btn:active, #toggleChartBtn:active, #pdf-btnz:active  {
       background-color: #cc0000;
       transform: scale(0.95);
     }
@@ -144,6 +146,7 @@
     <h3>Transaction History</h3>
     <ul id="transactions"></ul>
     <button id="clear-btn" onclick="clearTransactions()">Clear All Transactions</button> 
+    <button id="pdf-btn" onclick="exportToPDF()">Export to PDF</button>
     <button id="toggleChartBtn">Show Income vs Expense Chart</button>
     <div id="chartContainer">
       <canvas id="incomeExpenseChart"></canvas>
@@ -272,6 +275,37 @@
       }
     });
   }
+  async function exportToPDF() {
+    if (transactions.length === 0) {
+        alert("No transactions to export!");
+        return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("Transaction Report", 14, 15);
+    const tableColumn = ["Date & Time", "Description", "Category", "Type", "Amount"];
+    const tableRows = [];
+    transactions.forEach(t => {
+        const row = [
+            t.date,
+            t.desc,
+            t.category,
+            t.amount > 0 ? "Income" : "Expense",
+            "$" + Math.abs(t.amount)
+        ];
+        tableRows.push(row);
+    });
+    doc.autoTable({
+        head: [tableColumn],
+        body: tableRows,
+        startY: 25,
+        theme: "grid",
+        headStyles: { fillColor: [41, 128, 185] }, 
+        styles: { fontSize: 10, cellPadding: 3 }
+    });
+    doc.save("transactions.pdf");
+}
 </script>
 </body>
 </html>
