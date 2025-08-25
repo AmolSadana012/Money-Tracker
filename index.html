@@ -282,8 +282,14 @@
     }
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text("Transaction Report", 14, 15);
+    doc.setFontSize(18);
+    doc.text("Transaction Report", doc.internal.pageSize.getWidth() / 2, 20, { align: "center" });
+    let income = transactions.filter(t => t.amount > 0).reduce((a, b) => a + b.amount, 0);
+    let expense = transactions.filter(t => t.amount < 0).reduce((a, b) => a + Math.abs(b.amount), 0);
+    doc.setFontSize(12);
+    doc.text(`Balance: $${balance}`, 14, 25);
+    doc.text(`Total Income: $${income}`, 14, 32);
+    doc.text(`Total Expense: $${expense}`, 14, 39);
     const tableColumn = ["Date & Time", "Description", "Category", "Type", "Amount"];
     const tableRows = [];
     transactions.forEach(t => {
@@ -299,7 +305,7 @@
     doc.autoTable({
         head: [tableColumn],
         body: tableRows,
-        startY: 25,
+        startY: 50,
         theme: "grid",
         headStyles: { fillColor: [41, 128, 185] }, 
         styles: { fontSize: 10, cellPadding: 3 }
