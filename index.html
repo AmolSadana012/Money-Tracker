@@ -117,6 +117,17 @@
       display: none;
       margin-top: 20px;
     }
+    .search-container {
+      text-align: center;
+      margin: 20px 0;
+    }
+    #searchInput {
+      width: 60%;
+      padding: 10px;
+      border: 2px solid #007bff;
+      border-radius: 8px;
+      font-size: 16px;
+    }
   </style>
 </head>
 <body>
@@ -142,6 +153,9 @@
       </select>
       <input type="number" id="amount" placeholder="Enter amount">
       <button onclick="addTransaction()">Add</button>
+    </div>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Search here...">
     </div>
     <h3>Transaction History</h3>
     <ul id="transactions"></ul>
@@ -312,6 +326,32 @@
     });
     doc.save("transactions.pdf");
 }
+  document.addEventListener("DOMContentLoaded", () => {
+    const searchInput = document.getElementById("searchInput");
+    const noResults = document.createElement("p");
+    noResults.textContent = "No such transaction exists in the history.";
+    noResults.style.display = "none"; 
+    noResults.style.textAlign = "center";
+    noResults.style.color = "red";
+    noResults.id = "noResultsMessage";
+    const transactionsList = document.getElementById("transactions");
+    transactionsList.parentNode.insertBefore(noResults, transactionsList.nextSibling);
+    searchInput.addEventListener("input", function () {
+      let searchValue = this.value.toLowerCase();
+      let items = document.querySelectorAll("#transactions li");
+      let anyVisible = false;
+      items.forEach(item => {
+        let itemText = item.textContent.toLowerCase();
+        if (itemText.includes(searchValue)) {
+          item.style.display = "";
+          anyVisible = true;
+        } else {
+          item.style.display = "none";
+        }
+      });
+      noResults.style.display = anyVisible ? "none" : "block";
+    });
+  });
 </script>
 </body>
 </html>
