@@ -51,6 +51,11 @@
       color: #90caf9;
       text-decoration: none;
     }
+    .nav-icons {
+      margin-right: 15px;
+      display: flex;
+      align-items: center;
+    }
     .container {
       width: 100%;
       min-height: calc(100vh - 90px);  
@@ -173,6 +178,58 @@
         padding: 60px 10px 50px; 
       }
     }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100%;
+      width: 250px;
+      background: #222;
+      color: white;
+      padding: 20px;
+      transform: translateX(100%);   
+      transition: transform 0.3s ease-in-out;
+      box-shadow: -3px 0 5px rgba(0,0,0,0.3);
+      z-index: 1001;  
+    }
+    .sidebar.active {
+      transform: translateX(0);
+    }
+    .sidebar h2 {
+      margin-top: 0;
+    }
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+    .sidebar ul li {
+      margin: 15px 0;
+    }
+    .sidebar ul li a {
+      color: white;
+      text-decoration: none;
+    }
+    .sidebar li {
+      padding: 15px;
+      border-bottom: 1px solid black;
+      background: black;   
+      cursor: pointer;
+    }
+    #close-sidebar {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: white;
+      float: right;
+      cursor: pointer;
+    }
+    #settings-btn {
+      background: none;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      color: white; 
+    }
   </style>
 </head>
 <body>
@@ -184,6 +241,9 @@
       <a href="#transactions">Income vs Expense Chart</a>
       <a href="#transactions">Export to pdf</a>
     </nav>
+    <div class="nav-icons">
+      <button id="settings-btn">Settings</button>
+    </div>
   </header>
   <div class="container">
     <h1>Money Tracker</h1>
@@ -219,6 +279,16 @@
     <div id="chartContainer">
       <canvas id="incomeExpenseChart"></canvas>
     </div>
+  </div>
+  <div id="settings-sidebar" class="sidebar">
+    <button id="close-sidebar">&times;</button>
+    <h2>Settings</h2>
+    <ul>
+      <li><a href="#">Profile</a></li>
+      <li><a href="#">Theme</a></li>
+      <li><a href="#">Notifications</a></li>
+      <li><a href="#">Logout</a></li>
+    </ul>
   </div>
   <footer>
     <p>© 2025 Money Tracker</p>
@@ -381,7 +451,7 @@
         styles: { fontSize: 10, cellPadding: 3 }
     });
     doc.save("transactions.pdf");
-}
+  }
   document.addEventListener("DOMContentLoaded", () => {
     const searchInput = document.getElementById("searchInput");
     const noResults = document.createElement("p");
@@ -407,6 +477,15 @@
       });
       noResults.style.display = anyVisible ? "none" : "block";
     });
+  });
+  const sidebar = document.getElementById('settings-sidebar');
+  const settingsBtn = document.getElementById('settings-btn');
+  const closeBtn = document.getElementById('close-sidebar');
+  settingsBtn.addEventListener('click', () => {
+    sidebar.classList.add('active');
+  });
+  closeBtn.addEventListener('click', () => {
+    sidebar.classList.remove('active');
   });
 </script>
 </body>
