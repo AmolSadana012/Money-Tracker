@@ -173,6 +173,9 @@
       .nav-links {
         display: none; 
       }
+      .desktop-only {
+        display: none; 
+      }
       .container {
         width: 100%;
         padding: 60px 10px 50px; 
@@ -283,11 +286,11 @@
   <div id="settings-sidebar" class="sidebar">
     <button id="close-sidebar">&times;</button>
     <h2>Settings</h2>
-    <ul>
-      <li><a href="#">Profile</a></li>
-      <li><a href="#">Theme</a></li>
-      <li><a href="#">Notifications</a></li>
-      <li><a href="#">Logout</a></li>
+    <ul id="sidebar-menu">
+      <li class="desktop-only"><a href="#">Profile</a></li>
+      <li class="desktop-only"><a href="#">Theme</a></li>
+      <li class="desktop-only"><a href="#">Notifications</a></li>
+      <li class="desktop-only"><a href="#">Logout</a></li>
     </ul>
   </div>
   <footer>
@@ -487,6 +490,30 @@
   closeBtn.addEventListener('click', () => {
     sidebar.classList.remove('active');
   });
+  function setupSidebarMenu() {
+    const sidebarMenu = document.getElementById("sidebar-menu");
+    if (window.innerWidth <= 600) {
+      sidebarMenu.innerHTML = `
+        <li><a href="#">Home</a></li>
+        <li><a href="#type">Transactions</a></li>
+        <li><a href="#chartContainer">Income vs Expense Chart</a></li>
+        <li><a href="#" onclick="exportToPDF()">Export to PDF</a></li>
+        <li><a href="#">Profile</a></li>
+        <li><a href="#">Theme</a></li>
+        <li><a href="#">Notifications</a></li>
+        <li><a href="#">Logout</a></li>
+      `;
+    } else {
+      sidebarMenu.innerHTML = `
+        <li><a href="#">Profile</a></li>
+        <li><a href="#">Theme</a></li>
+        <li><a href="#">Notifications</a></li>
+        <li><a href="#">Logout</a></li>
+      `;
+    }
+  }
+  window.addEventListener("resize", setupSidebarMenu);
+  window.addEventListener("DOMContentLoaded", setupSidebarMenu);
 </script>
 </body>
 </html>
