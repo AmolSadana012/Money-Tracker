@@ -94,7 +94,7 @@
     li.expense {
       border-color: red;
     }
-    #clear-btn, #toggleChartBtn, #pdf-btn {
+    #clear-btn, #toggleChartBtn, #pdf-btn, .action-btn {
       display: block;
       margin: 20px auto;
       padding: 10px 20px;
@@ -106,7 +106,7 @@
       font-weight: bold;
       transition: 0.3s ease;
     }
-    #clear-btn:hover, #toggleChartBtn:hover, #pdf-btn:hover {
+    #clear-btn:hover, #toggleChartBtn:hover, #pdf-btn:hover, .action-btn:hover {
       background-color: #e60000;
       transform: scale(1.05);
     }
@@ -277,6 +277,8 @@
     <h3>Transaction History</h3>
     <ul id="transactions"></ul>
     <button id="clear-btn" onclick="clearTransactions()">Clear All Transactions</button>
+    <button class="action-btn" onclick="saveData()">Save Data</button>
+    <button class="action-btn" onclick="loadData()">Load Data</button>
     <button id="pdf-btn" onclick="exportToPDF()">Export to PDF</button>
     <button id="toggleChartBtn">Show Income vs Expense Chart</button>
     <div id="chartContainer">
@@ -514,6 +516,20 @@
   }
   window.addEventListener("resize", setupSidebarMenu);
   window.addEventListener("DOMContentLoaded", setupSidebarMenu);
+  function saveData() {
+    localStorage.setItem("transactions", JSON.stringify(transactions));
+    alert("Data saved successfully!");
+  }
+  function loadData() {
+    const savedData = localStorage.getItem("transactions");
+    if (savedData) {
+      transactions = JSON.parse(savedData);
+      updateUI(); 
+      alert("Data loaded successfully!");
+    } else {
+      alert("No saved data found.");
+    }
+  }
 </script>
 </body>
 </html>
